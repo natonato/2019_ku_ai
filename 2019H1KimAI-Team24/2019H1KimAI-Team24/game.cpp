@@ -2,31 +2,23 @@
 #include <cstdio>
 #include <cstdlib>
 
-Game::Game(int first) {
-	this->board = 0;
-	this->currentPlayer = first;
-	this->printBoard();
-}
 
-void Game::putStone(int col) {
-	if (count[col] >= 7) {
-		printBoard();
-		printf("%d은 둘 수 없는 곳입니다.\n", col);
-		return;
+bool Game::putStone(int col) {
+	if (count[col] >= 6) {
+		return false; // 둘 수 없을때
 	}
-	board = board | (board + (1 << (col * 7)));
-	player[currentPlayer] = board ^ player[1 - currentPlayer];
-	currentPlayer = 1 - currentPlayer;
+	board = board | (board + (1LL << (col * 7)));
+	player[currentPlayer] = board ^ player[!currentPlayer];
+	currentPlayer = !currentPlayer;
 	count[col]++;
-	printBoard();
+	return true;
 }
 
 void Game::printBoard() {
-	system("cls");
 	printf("Player1 : O Player2 : X\n");
 	printf("  --------------\n");
 	for (int i = 5; i >= 0; i--) {
-		long long bit = 1 << i;
+		long long bit = 1LL << i;
 		printf("%d |", i + 1);
 		for (int j = 0; j < 7; j++) {
 			char t = ' ';

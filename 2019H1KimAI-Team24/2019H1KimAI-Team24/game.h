@@ -9,9 +9,10 @@ public:
 private:
 	long long board = 0;
 	long long player[2] = { 0 };
-	byte currentPlayer;
 	byte count[7] = { 0 };
 public:
+	byte currentPlayer;
+
 	Game(byte first) : currentPlayer(first) {}
 	bool putStone(int column);
 	void printBoard();

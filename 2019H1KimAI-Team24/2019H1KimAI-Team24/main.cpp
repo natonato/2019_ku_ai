@@ -13,6 +13,9 @@ int main()
 		system("cls");
 		
 		game.printBoard();
+		if (game.endGame())
+			break;
+		
 		printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
 		
 		try {
@@ -40,6 +43,10 @@ int main()
 		}
 		fflush(stdin);
 	}
+
+	printf("\n\n%s 승\n", game.currentPlayer == Game::FIRST ? "Player2" : "Player1");
+	system("pause");
+
 	return 0;
 }
 

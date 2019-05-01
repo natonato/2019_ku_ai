@@ -16,6 +16,7 @@ public:
 	bool putStone(int column);
 	void printBoard();
 	bool endGame(); //°¡¸Á¾øÀ½
+	void debugPrint();
 
 	long long pos(int col, int row) const {
 		return 1LL << ((col * 7) + row);

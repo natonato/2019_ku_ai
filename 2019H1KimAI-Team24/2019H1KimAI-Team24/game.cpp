@@ -3,6 +3,19 @@
 #include <cstdlib>
 
 
+void Game::debugPrint() {
+	printf("\n  board: ");
+	for (int i = 63; i >= 0; i--)
+		putchar('0' + ((board >> i) & 1));
+	printf("\nplayer1: ");
+	for (int i = 63; i >= 0; i--)
+		putchar('0' + ((player[FIRST] >> i) & 1));
+	printf("\nplayer2: ");
+	for (int i = 63; i >= 0; i--)
+		putchar('0' + ((player[SECOND] >> i) & 1));
+	printf("\n\n");
+}
+
 bool Game::putStone(int col) {
 	if (board & (1LL << ((col * 7) + 5))) {
 		return false; // 둘 수 없을때

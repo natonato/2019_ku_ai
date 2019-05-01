@@ -10,7 +10,6 @@ public:
 private:
 	long long board = 0;
 	long long player[2] = { 0 };
-	byte count[7] = { 0 };
 
 public:
 	Game(byte first) : currentPlayer(first) {}

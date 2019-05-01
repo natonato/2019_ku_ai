@@ -4,13 +4,12 @@
 
 
 bool Game::putStone(int col) {
-	if (count[col] >= 6) {
+	if (board & (1LL << ((col * 7) + 5))) {
 		return false; // 둘 수 없을때
 	}
 	board = board | (board + (1LL << (col * 7)));
 	player[currentPlayer] = board ^ player[!currentPlayer];
 	currentPlayer = !currentPlayer;
-	count[col]++;
 	return true;
 }
 

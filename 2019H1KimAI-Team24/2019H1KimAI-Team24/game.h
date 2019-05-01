@@ -4,13 +4,19 @@
 #include "common.h"
 
 class Game {
+private:
+	Game() {}
 public:
 	static constexpr byte FIRST = 0, SECOND = 1;
 	byte currentPlayer;
 	long long board = 0;
 	long long player[2] = { 0 };
 
-	Game(byte first) : currentPlayer(first) {}
+	static Game& instance() {
+		static Game inst;
+		return inst;
+	}
+
 	bool putStone(int column);
 	void printBoard();
 	bool endGame(); //°¡¸Á¾øÀ½

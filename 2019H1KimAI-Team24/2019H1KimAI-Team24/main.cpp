@@ -6,8 +6,9 @@ int main()
 {
 	char ibuf[100];
 	int input;
-		
-	Game game(Game::FIRST);
+	
+	auto game = Game::instance();
+	game.currentPlayer = Game::FIRST;
 
 	while (1) {
 		system("cls");

@@ -13,9 +13,6 @@ int Ai::putStoneAI(Game game) {
 		Game currentGame = game;
 		currentGame.putStone(i-1);			// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 		int score = getScore(currentGame);
-
-		printf("input = %d\n", score);
-		system("pause");
 		if (maxScore < score) {
 			maxScore = score;
 			put = i;

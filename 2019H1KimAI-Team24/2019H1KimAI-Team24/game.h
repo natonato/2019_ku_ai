@@ -17,7 +17,7 @@ public:
 	void printBoard();
 	bool endGame(); //°¡¸Á¾øÀ½
 
-	bool pos(int col, int row) const {
+	long long pos(int col, int row) const {
 		return 1LL << ((col * 7) + row);
 	}
 };

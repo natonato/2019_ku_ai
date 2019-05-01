@@ -17,7 +17,7 @@ public:
 		return inst;
 	}
 
-	Game(byte player, long long p1state, long long p2state) : currentPlayer(player) {
+	Game(byte cp, long long p1state, long long p2state) : currentPlayer(cp) {
 		player[FIRST] = p1state;
 		player[SECOND] = p2state;
 		board = p1state | p2state;

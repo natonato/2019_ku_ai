@@ -15,6 +15,9 @@ public:
 	Game(byte first) : currentPlayer(first) {}
 	bool putStone(int column);
 	void printBoard();
+	bool pos(byte pl, int row, int col) const {
+		return (player[pl] >> ((col * 7) + row)) & 1;
+	}
 };
 
 #endif //GAME_H

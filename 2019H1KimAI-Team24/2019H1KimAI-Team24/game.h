@@ -17,8 +17,8 @@ public:
 	void printBoard();
 	bool endGame(); //°¡¸Á¾øÀ½
 
-	bool pos(byte pl, int row, int col) const {
-		return (player[pl] >> ((col * 7) + row)) & 1;
+	bool pos(int col, int row) const {
+		return 1LL << ((col * 7) + row);
 	}
 };
 

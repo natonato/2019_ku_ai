@@ -17,6 +17,24 @@ public:
 		return inst;
 	}
 
+	Game(byte player, long long p1state, long long p2state) : currentPlayer(player) {
+		player[FIRST] = p1state;
+		player[SECOND] = p2state;
+		board = p1state | p2state;
+	}
+	Game(const Game &prev) {
+		currentPlayer = prev.currentPlayer;
+		board = prev.board;
+		player[FIRST] = prev.player[FIRST];
+		player[SECOND] = prev.player[SECOND];
+	}
+	Game& operator=(const Game &prev) {
+		currentPlayer = prev.currentPlayer;
+		board = prev.board;
+		player[FIRST] = prev.player[FIRST];
+		player[SECOND] = prev.player[SECOND];
+	}
+
 	bool putStone(int column);
 	void printBoard();
 	bool endGame(); //°¡¸Á¾øÀ½

@@ -16,10 +16,10 @@ bool Game::putStone(int col) {
 
 void Game::printBoard() {
 	printf("Player1 : O Player2 : X\n");
-	printf("  --------------\n");
 	for (int i = 5; i >= 0; i--) {
+		printf("\n  戍式托式托式托式托式托式托式扣\n");
 		long long bit = 1LL << i;
-		printf("%d |", i + 1);
+		printf("%d 弛", i + 1);
 		for (int j = 0; j < 7; j++) {
 			char t = ' ';
 			if (player[0] & bit) {
@@ -29,10 +29,10 @@ void Game::printBoard() {
 				t = 'X';
 			}
 			printf("%c", t);
-			printf("|");
+			printf("弛");
 			bit <<= 7;
 		}
-		printf("\n  --------------\n");
 	}
+	printf("\n  戌式扛式扛式扛式扛式扛式扛式戎\n");
 	printf("   1 2 3 4 5 6 7 \n");
 }

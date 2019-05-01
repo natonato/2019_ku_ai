@@ -36,3 +36,48 @@ void Game::printBoard() {
 	printf("\n  戌式扛式扛式扛式扛式扛式扛式戎\n");
 	printf("   1 2 3 4 5 6 7 \n");
 }
+
+bool Game::endGame() {
+	long long mask;
+	int lastPlayer = 1 - currentPlayer;
+	mask = player[lastPlayer] & (player[lastPlayer] >> 1);
+	if (mask & (mask >> 2)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] << 1);
+	if (mask & (mask << 2)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] >> 7);
+	if (mask & (mask >> 14)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] << 7);
+	if (mask & (mask << 14)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] >> 8);
+	if (mask & (mask >> 16)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] << 8);
+	if (mask & (mask << 16)) {
+		return true;
+	}
+	
+	mask = player[lastPlayer] & (player[lastPlayer] >> 6);
+	if (mask & (mask >> 12)) {
+		return true;
+	}
+
+	mask = player[lastPlayer] & (player[lastPlayer] << 6);
+	if (mask & (mask << 12)) {
+		return true;
+	}
+	return false;
+}

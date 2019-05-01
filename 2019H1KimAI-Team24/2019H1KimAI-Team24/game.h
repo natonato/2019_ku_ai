@@ -15,6 +15,7 @@ public:
 	Game(byte first) : currentPlayer(first) {}
 	bool putStone(int column);
 	void printBoard();
+	bool endGame(); //°¡¸Á¾øÀ½
 };
 
 #endif //GAME_H

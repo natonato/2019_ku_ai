@@ -7,11 +7,9 @@ class Game {
 public:
 	static constexpr byte FIRST = 0, SECOND = 1;
 	byte currentPlayer;
-private:
 	long long board = 0;
 	long long player[2] = { 0 };
 
-public:
 	Game(byte first) : currentPlayer(first) {}
 	bool putStone(int column);
 	void printBoard();

@@ -1,8 +1,58 @@
-﻿#include <iostream>
+﻿#include "game.h"
+#include <cstdio>
+#include <cstdlib>
 
 int main()
 {
-    std::cout << "Hello World!\n"; 
+	char ibuf[100];
+	int input;
+		
+	Game game(Game::FIRST);
+
+	while (1) {
+		system("cls");
+		
+		game.printBoard();
+		if (game.board == 0b111111011111101111110111111011111101111110111111) {
+			printf("\n\n무승부\n");
+			break;
+		}
+		if (game.endGame()) {
+			printf("\n\n%s 승\n", game.currentPlayer == Game::FIRST ? "Player2" : "Player1");
+			break;
+		}
+
+		printf("\n  Player%d (%c) 차례\n\n", game.currentPlayer + 1, game.currentPlayer == Game::FIRST ? 'O' : 'X');
+		printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
+		
+		try {
+			fgets(ibuf, sizeof(ibuf), stdin);
+			if (sscanf(ibuf, "%d", &input) != 1)
+				throw 'n';	// 입력값 오류: 숫자가 아님
+			if (input < 1 || 7 < input)
+				throw 'r';	// 입력값 오류: 범위를 벗어남
+			if (!game.putStone(input - 1))
+				throw 'v';	// 더 이상 둘 수 없음
+		}
+		catch (char e) {
+			switch (e) {
+			case 'n':
+				printf("입력값 오류: 숫자가 아님\n"); 
+				break;
+			case 'r':
+				printf("입력값 오류: 범위를 벗어남\n");
+				break;
+			case 'v':
+				printf("%d에 더 이상 둘 수 없음\n", input); 
+				break;
+			}
+			system("pause");
+		}
+		fflush(stdin);
+	}
+
+	system("pause");
+
 	return 0;
 }
 

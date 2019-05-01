@@ -18,6 +18,7 @@ public:
 	bool pos(byte pl, int row, int col) const {
 		return (player[pl] >> ((col * 7) + row)) & 1;
 	}
+	bool endGame(); //°¡¸Á¾øÀ½
 };
 
 #endif //GAME_H

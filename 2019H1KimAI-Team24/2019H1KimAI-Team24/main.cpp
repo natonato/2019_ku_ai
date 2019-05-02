@@ -26,18 +26,23 @@ int main()
 		}
 
 		printf("\n  Player%d (%c) 차례\n\n", game.currentPlayer + 1, game.currentPlayer == Game::FIRST ? 'O' : 'X');
-		printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
 		
 		try {
-			if(game.currentPlayer == Game::FIRST) fgets(ibuf, sizeof(ibuf), stdin);
-			else input = ai.putStoneAI(game);
-			if (sscanf(ibuf, "%d", &input) != 1)
-				throw 'n';	// 입력값 오류: 숫자가 아님
-			if (input < 1 || 7 < input)
-				throw 'r';	// 입력값 오류: 범위를 벗어남
-			if (!game.putStone(input - 1))
-				throw 'v';	// 더 이상 둘 수 없음
-
+			if (game.currentPlayer == Game::FIRST) {
+				printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
+				fgets(ibuf, sizeof(ibuf), stdin);
+				if (sscanf(ibuf, "%d", &input) != 1)
+					throw 'n';	// 입력값 오류: 숫자가 아님
+				if (input < 1 || 7 < input)
+					throw 'r';	// 입력값 오류: 범위를 벗어남
+				if (!game.putStone(input - 1))
+					throw 'v';	// 더 이상 둘 수 없음
+			}
+			else {
+				printf("AI가 진행중...\n");
+				input = ai.putStoneAI(game);
+				game.putStone(input);
+			}
 		}
 		catch (char e) {
 			switch (e) {

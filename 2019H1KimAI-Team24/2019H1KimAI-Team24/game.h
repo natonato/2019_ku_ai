@@ -11,34 +11,31 @@ struct State {
 	operator b64&() { return value; }
 	operator b64() const { return value; }
 
-	static Game& instance() {
-		static Game inst;
-		return inst;
 #pragma endregion
 #pragma region helper function
-	// (col, row) ï¿½ï¿½Ä¡ index
+	// (col, row) À§Ä¡ index
 	static constexpr int posIdx(int col, int row) {
 		return (col * 7) + row;
 	}
 
-	// (col, row) ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½Å¸ï¿½ï¿½ï¿½ï¿½ bitmask ï¿½ï¿½ï¿½ï¿½
+	// (col, row) À§Ä¡¸¦ ³ªÅ¸³»´Â bitmask ¸®ÅÏ
 	static constexpr b64 posBit(int col, int row) {
 		return 1LL << posIdx(col, row);
 	}
 
-	// long longï¿½ï¿½ 64ï¿½Ú¸ï¿½ 2ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½
+	// long longÀ» 64ÀÚ¸® 2Áø¼ö·Î Ãâ·Â
 	static void print(b64 state) {
 		for (int i = 63; i >= 0; i--)
 			putchar('0' + (char)((state >> i) & 1));
 	}
 #pragma endregion
 #pragma region method
-	// boardï¿½ï¿½ (col, row) ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½Ö´ï¿½ bit ï¿½ï¿½ï¿½ï¿½ 
+	// boardÀÇ (col, row) À§Ä¡¿¡ ÀÖ´Â bit ¸®ÅÏ 
 	inline bool get(int col, int row) {
 		return (value >> posIdx(col, row)) & 1;
 	}
 
-	// boardï¿½ï¿½ (col, row) ï¿½ï¿½Ä¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
+	// board¿¡ (col, row) À§Ä¡¿¡ µ¹À» ³õÀ½
 	inline auto& set(int col, int row) {
 		value = value | posBit(col, row);
 		return *this;
@@ -47,20 +44,46 @@ struct State {
 };
 
 struct Game {
-	byte step = 0;	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ü°ï¿½ -> 0 ~ 42
-	byte turn = FST;	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ -> FST | SND
-	State player1 = 0;	// player1ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡ (ï¿½ï¿½ï¿½ï¿½ ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ shallow copyï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
-	State player2 = 0;	// player2ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½Ä¡
-
-	bool putStone(int column);
-	void printBoard();
-	bool endGame(); //°¡¸Á¾øÀ½
-	void debugPrint();
-
-	long long pos(int col, int row) const {
-		return 1LL << ((col * 7) + row);
+#pragma region constants
 	static constexpr byte FST = 0, SND = 1, DRAW = 2, PLAYING = 4;
+
+#pragma endregion
+#pragma region variables
+	byte step = 0;	// ÁøÇàÇÑ ´Ü°è -> 0 ~ 42
+	byte turn = FST;	// ÇöÀç ÅÏ -> FST | SND
+	State player1 = 0;	// player1°¡ ³õÀº µ¹ À§Ä¡ (º¹»ç ¼Óµµ¸¦ À§ÇØ shallow copy°¡ °¡´ÉÇÏµµ·Ï ³ª´³À½)
+	State player2 = 0;	// player2°¡ ³õÀº µ¹ À§Ä¡
+
+#pragma endregion
+#pragma region properties
+	auto board() const { return (b64)player1 | player2; }	// board °ªÀº Á÷Á¢ °»½Å ºÒ°¡
+	auto& player(byte n) { return n ? player2 : player1; }	// player(FST) = ...; °°ÀÌ »ç¿ë °¡´É
+
+#pragma endregion
+#pragma region method
+	// column ÀÚ¸®¿¡ µ¹ ³õÀ» ¼ö ÀÖ´Â Áö ¸®ÅÏ -> true | false
+	bool puttable(int column) const {
+		return !(board() & State::posBit(column, 5));
 	}
+
+	// GameÀÇ ÇöÀç »óÅÂ¸¦ ¸®ÅÏ -> NONE | FST | SND | DRAW
+	byte state();
+
+	// column ÀÚ¸®¿¡ µ¹ ³õÀº ´ÙÀ½ stepÀÇ GameÀ» ¸®ÅÏÇÔ
+	Game putStone(int column);
+
+	// Game »óÅÂ Ãâ·Â
+	void print();
+
+#pragma endregion
+#pragma region constructor
+	// ÇöÀç °ÔÀÓ »óÅÂ, Àü¿ª º¯¼ö
+	static Game& current() {
+		static Game _current;
+		return _current;
+	}
+
+#pragma endregion
 };
 
 #endif //GAME_H

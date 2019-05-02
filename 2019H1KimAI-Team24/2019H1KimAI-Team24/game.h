@@ -4,7 +4,6 @@
 #include "common.h"
 #include <cstdio>
 
-	static constexpr byte FIRST = 0, SECOND = 1;
 struct State {
 #pragma region variable and operators for emulating long long
 	b64 value;
@@ -60,6 +59,7 @@ struct Game {
 
 	long long pos(int col, int row) const {
 		return 1LL << ((col * 7) + row);
+	static constexpr byte FST = 0, SND = 1, DRAW = 2, PLAYING = 4;
 	}
 };
 

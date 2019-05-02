@@ -3,35 +3,21 @@
 
 #include "common.h"
 
-	Game() {}
 	static constexpr byte FIRST = 0, SECOND = 1;
-	byte currentPlayer;
-	long long board = 0;
-	long long player[2] = { 0 };
 
 	static Game& instance() {
 		static Game inst;
 		return inst;
 	}
 
-	Game(byte cp, long long p1state, long long p2state) : currentPlayer(cp) {
-		player[FIRST] = p1state;
-		player[SECOND] = p2state;
-		board = p1state | p2state;
 	}
-	Game(const Game &prev) {
-		currentPlayer = prev.currentPlayer;
-		board = prev.board;
-		player[FIRST] = prev.player[FIRST];
-		player[SECOND] = prev.player[SECOND];
 	}
-	Game& operator=(const Game &prev) {
-		currentPlayer = prev.currentPlayer;
-		board = prev.board;
-		player[FIRST] = prev.player[FIRST];
-		player[SECOND] = prev.player[SECOND];
 	}
 struct Game {
+	byte step = 0;	// ������ �ܰ� -> 0 ~ 42
+	byte turn = FST;	// ���� �� -> FST | SND
+	State player1 = 0;	// player1�� ���� �� ��ġ (���� �ӵ��� ���� shallow copy�� �����ϵ��� ������)
+	State player2 = 0;	// player2�� ���� �� ��ġ
 
 	bool putStone(int column);
 	void printBoard();

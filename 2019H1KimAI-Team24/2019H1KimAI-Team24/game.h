@@ -3,10 +3,7 @@
 
 #include "common.h"
 
-class Game {
-private:
 	Game() {}
-public:
 	static constexpr byte FIRST = 0, SECOND = 1;
 	byte currentPlayer;
 	long long board = 0;
@@ -34,6 +31,7 @@ public:
 		player[FIRST] = prev.player[FIRST];
 		player[SECOND] = prev.player[SECOND];
 	}
+struct Game {
 
 	bool putStone(int column);
 	void printBoard();

@@ -2,66 +2,52 @@
 #include <cstdio>
 #include <cstdlib>
 
+// Game의 현재 상태를 리턴 -> [NONE | FST | SND | DRAW]
+byte Game::state() {
+	if (board() == 0b111111011111101111110111111011111101111110111111)
+		return DRAW;
 
-void Game::debugPrint() {
-	printf("\n  board: ");
-	for (int i = 63; i >= 0; i--)
-		putchar('0' + ((board >> i) & 1));
-	printf("\nplayer1: ");
-	for (int i = 63; i >= 0; i--)
-		putchar('0' + ((player[FIRST] >> i) & 1));
-	printf("\nplayer2: ");
-	for (int i = 63; i >= 0; i--)
-		putchar('0' + ((player[SECOND] >> i) & 1));
-	printf("\n\n");
-}
+	byte lastTurn = !turn;
+	auto playerState = player(lastTurn);
+	constexpr int direction[] = { 1, 7, 8, 6 };
 
-bool Game::putStone(int col) {
-	if (board & pos(col, 5)) {
-		return false; // 둘 수 없을때
+	for (int i = 0; i < 4; i++) {
+		auto d = direction[i];
+		auto mask = playerState & (playerState >> d);
+		if (mask & (mask >> (2 * d)))
+			return lastTurn;
 	}
-	board = board | (board + pos(col, 0));
-	player[currentPlayer] = board ^ player[!currentPlayer];
-	currentPlayer = !currentPlayer;
-	return true;
+
+	return PLAYING;
 }
 
-void Game::printBoard() {
-	printf("Player1 : O Player2 : X\n");
+// column 자리에 돌 놓은 다음 step의 Game을 리턴함
+Game Game::putStone(int column) {
+	auto b = board();
+	b = b | (b + State::posBit(column, 0));
+	return Game {
+		(byte)(step + 1),
+		!turn,
+		turn == FST ? b ^ player2 : (b64)player1,
+		turn == SND ? b ^ player1 : (b64)player2
+	};
+}
+
+// Game 상태 출력
+void Game::print() {
+	printf("(bitstate)               |--6-| |--5-| |--4-| |--3-| |--2-| |--1-| |--0-|");
+	printf("\n  board: "); State::print(board());
+	printf("\nplayer1: "); State::print(player1);
+	printf("\nplayer2: "); State::print(player2);
+	printf("\n\n----------------------- Player1 = O / Player2 = X -----------------------\n");
 	for (int i = 5; i >= 0; i--) {
-		printf("\n  ├─┼─┼─┼─┼─┼─┼─┤\n");
-		printf("%d │", i + 1);
+		printf("\n                            %d │", i);
 		for (int j = 0; j < 7; j++) {
-			auto bit = pos(j, i);
-			char t = (player[FIRST] & bit) ? 'O' : (player[SECOND] & bit) ? 'X' : ' ';
-			printf("%c│", t);
+			auto bit = State::posBit(j, i);
+			char t = (player1 & bit) ? 'O' : (player2 & bit) ? 'X' : '_';
+			printf("% c│", t);
 		}
 	}
-	printf("\n  └─┴─┴─┴─┴─┴─┴─┘\n");
-	printf("   1 2 3 4 5 6 7 \n");
-}
-
-bool Game::endGame() {
-	long long mask;
-	byte lastPlayer = !currentPlayer;
-	mask = player[lastPlayer] & (player[lastPlayer] >> 1);
-	if (mask & (mask >> 2)) {
-		return true;
-	}
-	
-	mask = player[lastPlayer] & (player[lastPlayer] >> 7);
-	if (mask & (mask >> 14)) {
-		return true;
-	}
-	
-	mask = player[lastPlayer] & (player[lastPlayer] >> 8);
-	if (mask & (mask >> 16)) {
-		return true;
-	}
-	
-	mask = player[lastPlayer] & (player[lastPlayer] >> 6);
-	if (mask & (mask >> 12)) {
-		return true;
-	}
-	return false;
+	printf("\n                               0 1 2 3 4 5 6 \n\n");
+	printf("------------------------- %2hhd 단계, player%hhd 차례 -------------------------\n\n", step, turn + 1);
 }

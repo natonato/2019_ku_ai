@@ -8,28 +8,20 @@ int main()
 	char ibuf[100];
 	int input=0;
 	
-	auto game = Game::instance();
+	auto game = Game::current();
+	game.turn = Game::FST;
 	Ai ai;
-	game.currentPlayer = Game::FIRST;
 
 	while (1) {
 		system("cls");
 		
-		game.printBoard();
-		if (game.board == 0b111111011111101111110111111011111101111110111111) {
-			printf("\n\n무승부\n");
+		game.print();
+		if (game.state() != Game::PLAYING)
 			break;
-		}
-		if (game.endGame()) {
-			printf("\n\n%s 승\n", game.currentPlayer == Game::FIRST ? "Player2" : "Player1");
-			break;
-		}
-
-		printf("\n  Player%d (%c) 차례\n\n", game.currentPlayer + 1, game.currentPlayer == Game::FIRST ? 'O' : 'X');
 		
 		try {
-			if (game.currentPlayer == Game::FIRST) {
 				printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
+			if (game.turn == Game::FST) {
 				fgets(ibuf, sizeof(ibuf), stdin);
 				if (sscanf(ibuf, "%d", &input) != 1)
 					throw 'n';	// 입력값 오류: 숫자가 아님
@@ -41,8 +33,8 @@ int main()
 			else {
 				printf("AI가 진행중...\n");
 				input = ai.putStoneAI(game);
-				game.putStone(input);
 			}
+			game = game.putStone(input);
 		}
 		catch (char e) {
 			switch (e) {
@@ -61,6 +53,8 @@ int main()
 		fflush(stdin);
 	}
 
+	auto st = game.state();
+	printf("\n\n%s\n", st == Game::FST ? "Player1 승" : st == Game::SND ? "Player2 승" : "무승부");
 	system("pause");
 
 	return 0;

@@ -3,8 +3,7 @@
 #include <cstdio>
 #include <cstdlib>
 
-int main()
-{
+int main() {
 	char ibuf[100];
 	int input=0;
 	
@@ -20,19 +19,19 @@ int main()
 			break;
 		
 		try {
-				printf("돌을 놓을 위치 입력 (1 ~ 7) : ");
 			if (game.turn == Game::FST) {
+				printf("돌을 놓을 위치 입력 (0 ~ 6) : ");
 				fgets(ibuf, sizeof(ibuf), stdin);
 				if (sscanf(ibuf, "%d", &input) != 1)
 					throw 'n';	// 입력값 오류: 숫자가 아님
-				if (input < 1 || 7 < input)
+				if (input < 0 || 6 < input)
 					throw 'r';	// 입력값 오류: 범위를 벗어남
-				if (!game.putStone(input - 1))
+				if (!game.puttable(input))
 					throw 'v';	// 더 이상 둘 수 없음
 			}
 			else {
 				printf("AI가 진행중...\n");
-				input = ai.putStoneAI(game);
+				input = ai.putStoneAI(game) - 1;
 			}
 			game = game.putStone(input);
 		}

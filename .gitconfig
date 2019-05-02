@@ -1,0 +1,2 @@
+[diff "encoding"]
+	textconv="iconv -f euc-kr -t utf-8"

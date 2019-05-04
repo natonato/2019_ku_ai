@@ -31,7 +31,7 @@ int main() {
 			}
 			else {
 				printf("AI가 진행중...\n");
-				input = ai.putStoneAI(game) - 1;
+				input = ai.putStoneAI(game);
 			}
 			game = game.putStone(input);
 		}

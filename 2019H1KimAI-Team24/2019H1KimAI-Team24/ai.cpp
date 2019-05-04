@@ -11,8 +11,8 @@ int Ai::putStoneAI(Game game) {
 	for (int i=0; i < 4; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결
 			Game currentGame = game.putStone(order[i]);
-			int score = -getScore(currentGame, -23, 23);
-			//int score = tmpScore(currentGame, maxScore, 23, false);
+			//int score = -getScore(currentGame, -23, 23);
+			int score = tmpScore(currentGame, maxScore, 23, false);
 			if (maxScore < score) {
 				maxScore = score;
 				put = order[i];
@@ -20,6 +20,7 @@ int Ai::putStoneAI(Game game) {
 			}
 
 		}
+		printf("%d : %d\n", i, maxScore);
 	}
 	return put;
 }
@@ -30,7 +31,7 @@ int Ai::getScore(Game g, int a, int b) {
 
 	if (g.state() != g.PLAYING) return -(22 - (g.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 	if (g.board() == 0b111111011111101111110111111011111101111110111111) return 0; // 비김
-	if (g.board() == 0b000000000000000000000000000011111101111110111111) return 0;
+	if (g.board() == 0b000000000000001111110111111011111101111110000000) return 0;
 
 	maxScore = 21 - (checkOne(g.board()) + 1) / 2;
 	if (b > maxScore) {
@@ -63,34 +64,40 @@ int Ai::tmpScore(Game g, int a, int b, bool max) {
 	}
 	if (g.state() != g.PLAYING) return flag * (22 - (g.step + 1) / 2);
 	if (g.board() == 0b111111011111101111110111111011111101111110111111) return 0; // 비김
-	if (g.board() == 0b000000000000000000000000000011111101111110111111) return 0;
+	if (g.board() == 0b000000000000001111110111111011111101111110000000) return 0;
 	if (max) {
-		int score;
+		int maxScore = -23;
 		for (int i = 0; i < 4; i++) {
 			if (g.puttable(order[i])) {
 				Game tmpGame = g.putStone(order[i]);
-				score = tmpScore(tmpGame, a, b, !max);
-				if (a < score) {
-					a = score;
+				int score = tmpScore(tmpGame, a, b, !max);
+				if (maxScore < score) {
+					maxScore = score;
+				}
+				if (a < maxScore) {
+					a = maxScore;
 				}
 				if (a >= b) break;
 			}
 		}
-		return a;
+		return maxScore;
 	}
 	else {
-		int score;
+		int minScore = 23;
 		for (int i = 0; i < 4; i++) {
 			if (g.puttable(order[i])) {
 				Game tmpGame = g.putStone(order[i]);
-				score = tmpScore(tmpGame, a, b, !max);
-				if (b > score) {
-					b = score;
+				int score = tmpScore(tmpGame, a, b, !max);
+				if (minScore > score) {
+					minScore = score;
+				}
+				if (b > minScore) {
+					b = minScore;
 				}
 				if (a >= b) break;
 			}
 		}
-		return b;
+		return minScore;
 	}
 }
 

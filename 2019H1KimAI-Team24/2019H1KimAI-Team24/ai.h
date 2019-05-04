@@ -9,7 +9,7 @@ public:
 	int getScore(Game game, int a, int b);
 	int checkOne(long long a);
 
-	int order[7] = { 4,3,5,2,6,1,7 };
+	int order[7] = { 3,2,4,1,5,0,6 };
 
 };
 

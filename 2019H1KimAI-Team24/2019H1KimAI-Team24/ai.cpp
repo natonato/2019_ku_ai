@@ -9,13 +9,13 @@ int Ai::putStoneAI(Game game) {
 	
 
 	for (int i=0; i < 7; i++) {
-		if (game.puttable(i)) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결
-			Game currentGame = game.putStone(i);
+		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결
+			Game currentGame = game.putStone(order[i]);
 			int score = getScore(currentGame, -24, 24);
 
 			if (maxScore < score) {
 				maxScore = score;
-				put = i;
+				put = order[i];
 
 			}
 
@@ -40,8 +40,8 @@ int Ai::getScore(Game g, int a, int b) {
 
 
 	for (int i = 0; i < 4; i++) {
-		if (g.puttable(i)) {
-			Game tmpGame = g.putStone(i);
+		if (g.puttable(order[i])) {
+			Game tmpGame = g.putStone(order[i]);
 			score = -getScore(tmpGame, -b, -a);						//putStone이 true면 재귀
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;

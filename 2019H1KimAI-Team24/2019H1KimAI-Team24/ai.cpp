@@ -11,8 +11,8 @@ int Ai::putStoneAI(Game game) {
 	for (int i=0; i < 4; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결
 			Game currentGame = game.putStone(order[i]);
-			//int score = -getScore(currentGame, -23, 23);
-			int score = tmpScore(currentGame, maxScore, 23, false);
+			int score = -getScore(currentGame, -23, 23);
+			//int score = tmpScore(currentGame, maxScore, 23, false);
 			if (maxScore < score) {
 				maxScore = score;
 				put = order[i];
@@ -20,20 +20,27 @@ int Ai::putStoneAI(Game game) {
 			}
 
 		}
-		printf("%d : %d\n", i, maxScore);
+//		printf("%d : %d\n", i, maxScor);
+		//system("pause");
 	}
 	return put;
 }
 
 int Ai::getScore(Game g, int a, int b) {
 	//Game tmpGame = g;
-	int score=-23, maxScore;
+	int score = -23, maxScore, val;
 
 	if (g.state() != g.PLAYING) return -(22 - (g.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 	if (g.board() == 0b111111011111101111110111111011111101111110111111) return 0; // 비김
 	if (g.board() == 0b000000000000001111110111111011111101111110000000) return 0;
+	
+	if (val = table.getValue(g.turn ? g.player2.value : g.player1.value)) {
+		maxScore = val + 99;
+	}
+	else {
+		maxScore = 21 - (g.step + 1) / 2;
+	}
 
-	maxScore = 21 - (checkOne(g.board()) + 1) / 2;
 	if (b > maxScore) {
 		b = maxScore;
 		if (a >= b) return b;
@@ -52,7 +59,7 @@ int Ai::getScore(Game g, int a, int b) {
 		}
 		
 	}
-	
+	table.putValue(g.turn ? g.player2.value : g.player1.value, a - 99);
 
 	return a;
 }

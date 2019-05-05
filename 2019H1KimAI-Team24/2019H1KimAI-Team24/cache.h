@@ -5,15 +5,12 @@
 #include "common.h"
 #include <cstdlib>
 
-struct node {
-	byte value;
-	b64 key;
-};
 
 class Cache {
 public:
 
-	node *table;
+	b64 *keyTable;
+	byte *valTable;
 
 	unsigned int index(b64 key) {
 		return key % MAX_ENTRY;
@@ -21,20 +18,21 @@ public:
 
 	int getValue(b64 key) {
 		unsigned int idx = index(key);
-		if (table[idx].key == key) {
-			return table[idx].value;
+		if (keyTable[idx] == key) {
+			return valTable[idx];
 		}
 		return 0;
 	}
 
 	void putValue(b64 key, byte val) {
 		unsigned int idx = index(key);
-		table[idx].key = key;
-		table[idx].value = val;
+		keyTable[idx] = key;
+		valTable[idx] = val;
 	}
 	
 	Cache() {
-		table = (node*)calloc(MAX_ENTRY, sizeof(node));
+		keyTable = (b64*)calloc(MAX_ENTRY, sizeof(b64));
+		valTable = (byte*)calloc(MAX_ENTRY, sizeof(byte));
 	}
 };
 

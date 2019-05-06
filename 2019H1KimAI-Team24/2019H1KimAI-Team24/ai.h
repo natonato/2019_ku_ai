@@ -11,10 +11,11 @@ public:
 
 private:
 	// negamax Å½»ö ÇÔ¼ö
-	int getScore(Game game, int a, int b);
+	int getScoreHeuristic(Game game, int a, int b, int depth);
+	int getScorePerfect(Game game, int a, int b);
 
-	int checkOne(long long a);
-	int tmpScore(Game, int, int, bool);
+	// ÈÞ¸®½ºÆ½ score °è»ê
+	int scoreFunction(b64 game);
 
 	// Å½»ö ¼ø¼­
 	int order[7] = { 3, 2, 4, 1, 5, 0, 6 };

@@ -3,22 +3,19 @@
 #include <cstdio>
 #include <cstdlib>
 
-
+// game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
 	int maxScore = -23, put;
 	
-
-	for (int i=0; i < 4; i++) {
-		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결
-			Game currentGame = game.putStone(order[i]);
-			int score = -getScore(currentGame, -23, 23);
-			//int score = tmpScore(currentGame, maxScore, 23, false);
+	for (int i = 0; i < NCOLUMN; i++) {
+		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
+			Game nextGame = game.putStone(order[i]);
+			int score = - getScore(nextGame, -23, 23);
+			//int score = tmpScore(nextGame, maxScore, 23, false);
 			if (maxScore < score) {
 				maxScore = score;
 				put = order[i];
-
 			}
-
 		}
 //		printf("%d : %d\n", i, maxScor);
 		//system("pause");
@@ -26,40 +23,36 @@ int Ai::putStoneAI(Game game) {
 	return put;
 }
 
-int Ai::getScore(Game g, int a, int b) {
+// negamax 탐색 함수
+int Ai::getScore(Game game, int a, int b) {
 	//Game tmpGame = g;
-	int score = -23, maxScore, val;
+	int score = -23;
 
-	if (g.state() != g.PLAYING) return -(22 - (g.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
-	if (g.board() == 0b111111011111101111110111111011111101111110111111) return 0; // 비김
-	if (g.board() == 0b000000000000001111110111111011111101111110000000) return 0;
+	const auto state = game.state();
+	if (state == game.DRAW) return 0; // 비김
+	if (state != game.PLAYING) return -(22 - (game.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 	
-	if (val = table.getValue(g.turn ? g.player2.value : g.player1.value)) {
-		maxScore = val + 99;
-	}
-	else {
-		maxScore = 21 - (g.step + 1) / 2;
-	}
+	const int cachedScore = table.getValue(game.player(game.turn).value);
+	const int maxScore = cachedScore ? (cachedScore + 99) : (21 - (game.step + 1) / 2);
 
 	if (b > maxScore) {
 		b = maxScore;
 		if (a >= b) return b;
 	}
-
-
-	for (int i = 0; i < 4; i++) {
-		if (g.puttable(order[i])) {
-			Game tmpGame = g.putStone(order[i]);
-			score = -getScore(tmpGame, -b, -a);						//putStone이 true면 재귀
+	
+	for (int i = 0; i < NCOLUMN; i++) {
+		if (game.puttable(order[i])) {
+			Game nextGame = game.putStone(order[i]);
+			score = -getScore(nextGame, -b, -a);		//putStone이 true면 재귀
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;
 
 //			printf("score = %d\n", score);
 //			system("pause");
 		}
-		
 	}
-	table.putValue(g.turn ? g.player2.value : g.player1.value, a - 99);
+
+	table.putValue(game.player(game.turn).value, a - 99);
 
 	return a;
 }

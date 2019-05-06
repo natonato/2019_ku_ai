@@ -4,9 +4,6 @@
 
 // Game의 현재 상태를 리턴 -> [NONE | FST | SND | DRAW]
 byte Game::state() {
-	if (board() == 0b111111011111101111110111111011111101111110111111)
-		return DRAW;
-
 	byte lastTurn = !turn;
 	auto playerState = player(lastTurn);
 	constexpr int direction[] = { 1, 7, 8, 6 };
@@ -17,6 +14,9 @@ byte Game::state() {
 		if (mask & (mask >> (2 * d)))
 			return lastTurn;
 	}
+
+	if (step == 6 * NCOLUMN)
+		return DRAW;
 
 	return PLAYING;
 }

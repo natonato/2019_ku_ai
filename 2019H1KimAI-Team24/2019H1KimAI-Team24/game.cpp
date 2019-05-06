@@ -35,11 +35,11 @@ Game Game::putStone(int column) {
 
 // Game 상태 출력
 void Game::print() {
-	printf("(bitstate)               |--6-| |--5-| |--4-| |--3-| |--2-| |--1-| |--0-|");
+	printf(" (bitstate)              |--6-| |--5-| |--4-| |--3-| |--2-| |--1-| |--0-|");
 	printf("\n  board: "); State::print(board());
-	printf("\nplayer1: "); State::print(player1);
-	printf("\nplayer2: "); State::print(player2);
-	printf("\n\n----------------------- Player1 = O / Player2 = X -----------------------\n");
+	printf("\n player: "); State::print(player1);
+	printf("\n     AI: "); State::print(player2);
+	printf("\n\n------------------------- 플레이어 = O / AI = X -------------------------\n");
 	for (int i = 5; i >= 0; i--) {
 		printf("\n                            %d │", i);
 		for (int j = 0; j < 7; j++) {
@@ -49,5 +49,5 @@ void Game::print() {
 		}
 	}
 	printf("\n                               0 1 2 3 4 5 6 \n\n");
-	printf("------------------------- %2hhd 단계, player%hhd 차례 -------------------------\n\n", step, turn + 1);
+	printf("------------------------- %2hhd 단계, %s 차례 -------------------------\n\n", step, turn == FST ? "플레이어" : "AI");
 }

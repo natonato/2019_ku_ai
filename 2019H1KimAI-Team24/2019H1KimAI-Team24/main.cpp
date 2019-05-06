@@ -26,7 +26,7 @@ int main() {
 		game = game.putStone(2);
 	}
 
-	while (1) {
+	while (true) {
 		system("cls");
 		
 		game.print();
@@ -68,7 +68,7 @@ int main() {
 	}
 
 	auto st = game.state();
-	printf("\n\n%s\n", st == Game::FST ? "Player1 승" : st == Game::SND ? "Player2 승" : "무승부");
+	printf("\n\n%s\n", st == Game::FST ? "플레이어 승" : st == Game::SND ? "AI 승" : "무승부");
 	system("pause");
 
 	return 0;

@@ -10,8 +10,8 @@ public:
 	int getScore(Game game, int a, int b);
 	int checkOne(long long a);
 	int tmpScore(Game, int, int, bool);
-	int order[7] = { 3,2,4,1,5,0,6 };
-	Cache table = Cache();
+	int order[7] = { 3, 2, 4, 1, 5, 0, 6 };
+	Cache table;
 };
 
 

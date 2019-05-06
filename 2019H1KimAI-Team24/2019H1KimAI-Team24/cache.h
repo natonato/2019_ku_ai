@@ -1,16 +1,17 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#define MAX_ENTRY 8388608				//8M
+#define MAX_ENTRY 0x800000				//8M
 #include "common.h"
 #include <cstdlib>
+#include <vector>
 
 
 class Cache {
 public:
 
-	b64 *keyTable;
-	byte *valTable;
+	std::vector<b64> keyTable;
+	std::vector<byte> valTable;
 
 	unsigned int index(b64 key) {
 		return key % MAX_ENTRY;
@@ -30,10 +31,7 @@ public:
 		valTable[idx] = val;
 	}
 	
-	Cache() {
-		keyTable = (b64*)calloc(MAX_ENTRY, sizeof(b64));
-		valTable = (byte*)calloc(MAX_ENTRY, sizeof(byte));
-	}
+	Cache() : keyTable(MAX_ENTRY), valTable(MAX_ENTRY) {}
 };
 
 #endif

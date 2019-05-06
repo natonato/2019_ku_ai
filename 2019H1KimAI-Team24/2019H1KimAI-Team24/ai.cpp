@@ -98,7 +98,7 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 	for (int i = 0; i < NCOLUMN; i++) {
 		if (game.puttable(order[i])) {
 			Game nextGame = game.putStone(order[i]);
-			score = -getScore(nextGame, -b, -a);		//putStone이 true면 재귀
+			score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;
 

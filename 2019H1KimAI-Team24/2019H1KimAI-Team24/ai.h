@@ -3,6 +3,7 @@
 
 #include "common.h"
 #include "cache.h"
+#include <array>
 
 class Ai {
 public:

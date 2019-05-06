@@ -3,21 +3,42 @@
 #include <cstdio>
 #include <cstdlib>
 
+// AI 결과 출력 함수
+void printResult(int result, std::array<int, 7> &resultScore) {
+	printf("\n                  0     1     2     3     4     5     6");
+	printf("\n평가된 점수: [ ");
+	for (int i = 0; i < 7; ++i) {
+		if (i != 0)
+			printf(", ");
+		if (resultScore[i] != INT_MAX)
+			printf("%4d", resultScore[i]);
+		else
+			printf("   -");
+	}
+	printf(" ]\n\n%d 선택\n\n", result);
+	system("pause");
+}
+
 // game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
 	int maxScore = -1000000, put;
+	std::array<int, 7> resultScore { INT_MAX, INT_MAX, INT_MAX , INT_MAX , INT_MAX , INT_MAX , INT_MAX };
 	
 	for (int i = 0; i < NCOLUMN; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 			Game nextGame = game.putStone(order[i]);
-			int score = -getScoreHeuristic(nextGame, -1000000, -maxScore, 1);
+			//int score = -getScoreHeuristic(nextGame, -1000000, -maxScore, 1);
+			int score = -getScorePerfect(nextGame, -1000000, -maxScore);
 			if (maxScore < score) {
 				maxScore = score;
 				put = order[i];
 			}
+			resultScore[order[i]] = score;
 		}
 		//printf("%d : %d\n", i, maxScore);
 	}
+	
+	printResult(put, resultScore);
 	return put;
 }
 
@@ -80,9 +101,6 @@ int Ai::scoreFunction(b64 player) {
 
 // negamax 탐색 함수
 int Ai::getScorePerfect(Game game, int a, int b) {
-	//Game tmpGame = g;
-	int score = -23;
-
 	const auto state = game.state();
 	if (state == game.DRAW) return 0; // 비김
 	if (state != game.PLAYING) return -(22 - (game.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
@@ -95,10 +113,15 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		if (a >= b) return b;
 	}
 
+	// 다음 수에 이길 수 있으면 바로 리턴 (코드 중복 제거 필요함)
+	for (int i = 0; i < NCOLUMN; i++)
+		if (game.puttable(order[i]) && game.putStone(order[i]).state() == game.turn)
+			return (22 - (game.step + 2) / 2);
+
 	for (int i = 0; i < NCOLUMN; i++) {
 		if (game.puttable(order[i])) {
 			Game nextGame = game.putStone(order[i]);
-			score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
+			int score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;
 

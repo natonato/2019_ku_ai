@@ -76,14 +76,6 @@ struct Game {
 	void print();
 
 #pragma endregion
-#pragma region constructor
-	// 현재 게임 상태, 전역 변수
-	static Game& current() {
-		static Game _current;
-		return _current;
-	}
-
-#pragma endregion
 };
 
 #endif //GAME_H

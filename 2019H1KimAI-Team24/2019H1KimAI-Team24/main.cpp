@@ -5,11 +5,26 @@
 
 int main() {
 	char ibuf[100];
-	int input=0;
+	int input = 0;
 	
-	auto game = Game::current();
-	game.turn = Game::FST;
+	Game game;
 	Ai ai;
+
+	while (true) {
+		printf("선공 입력 (플레이어 = 0, AI = 1): ");
+		fgets(ibuf, sizeof(ibuf), stdin);
+		if (sscanf(ibuf, "%d", &input) != 1)
+			printf("입력값 오류: 숫자가 아님\n");
+		else if (input != 0 && input != 1)
+			printf("입력값 오류: 범위를 벗어남\n");
+		else
+			break;
+	}
+
+	if (input) {	// AI가 선일 때
+		game.turn = Game::SND;
+		game = game.putStone(2);
+	}
 
 	while (1) {
 		system("cls");

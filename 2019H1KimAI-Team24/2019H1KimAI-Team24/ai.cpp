@@ -2,50 +2,88 @@
 #include "ai.h"
 #include <cstdio>
 #include <cstdlib>
+#include <thread>
 
-// AI 결과 출력 함수
-void printResult(int result, std::array<int, 7> &resultScore) {
-	printf("\n                  0     1     2     3     4     5     6");
-	printf("\n평가된 점수: [ ");
-	for (int i = 0; i < 7; ++i) {
-		if (i != 0)
-			printf(", ");
-		if (resultScore[i] != INT_MAX)
-			printf("%4d", resultScore[i]);
-		else
-			printf("   -");
-	}
-	printf(" ]\n\n%d 선택\n\n", result);
-	system("pause");
-}
+#define NEG -1000000
 
 // game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
-	int maxScore = -1000000, put;
-	std::array<int, 7> resultScore { INT_MAX, INT_MAX, INT_MAX , INT_MAX , INT_MAX , INT_MAX , INT_MAX };
-	
+	int result;
+	if (game.step < 15) {
+		putStoneHeruistic(game, result);
+		printf("\n\nResult: %d 선택\n\n", result + 1);
+	}
+	else {
+		int pfResult;
+		auto perfectThread = std::thread(&Ai::putStonePerfect, this, game, std::ref(pfResult));
+		putStoneHeruistic(game, result);
+		perfectThread.join();
+		printf("\n\nResult: %d 선택\n\n", result + 1);
+	}
+	return result;
+}
+
+void printResultArray(std::array<int, 7>& arr) {
+	printf("[ ");
+	for (int i = 0; i < 7; ++i) {
+		if (i != 0) printf(", ");
+		switch (arr[i]) {
+		case INT_MIN: printf("   -"); break;
+		case     NEG: printf("LOSE"); break;
+		case    -NEG: printf(" WIN"); break;
+		default: printf("%4d", arr[i]);
+		}
+	}
+	puts("]");
+}
+
+// 나 눈 다
+void Ai::putStoneHeruistic(Game game, int& result) {
+	int maxScore = NEG;
+	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN , INT_MIN };
+
 	for (int i = 0; i < NCOLUMN; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 			Game nextGame = game.putStone(order[i]);
-			//int score = -getScoreHeuristic(nextGame, -1000000, -maxScore, 1);
-			int score = -getScorePerfect(nextGame, -1000000, -maxScore);
+			int score = -getScoreHeuristic(nextGame, NEG, -maxScore, 1);
 			if (maxScore < score) {
 				maxScore = score;
-				put = order[i];
+				result = order[i];
 			}
+			printf("\nHeuristic Solver: [%d] = %d", order[i] + 1, score);
 			resultScore[order[i]] = score;
 		}
 		//printf("%d : %d\n", i, maxScore);
 	}
-	
-	printResult(put, resultScore);
-	return put;
+	printf("\n\nHeuristic Solution: ");
+	printResultArray(resultScore);
+}
+
+void Ai::putStonePerfect(Game game, int& result) {
+	int maxScore = NEG;
+	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN , INT_MIN };
+
+	for (int i = 0; i < NCOLUMN; i++) {
+		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
+			Game nextGame = game.putStone(order[i]);
+			int score = -getScorePerfect(nextGame, NEG, -maxScore);
+			if (maxScore < score) {
+				maxScore = score;
+				result = order[i];
+			}
+			printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
+			resultScore[order[i]] = score;
+		}
+		//printf("%d : %d\n", i, maxScore);
+	}
+	printf("\n\nPerfect Solution: ");
+	printResultArray(resultScore);
 }
 
 int Ai::getScoreHeuristic(Game g, int a, int b, int depth) {
 	int score = -23, maxScore = 21 - (g.step + 1) / 2, val;
 
-	if (g.state() != g.PLAYING) return -100000;				//게임 종료 -100000 return
+	if (g.state() != g.PLAYING) return NEG;				//게임 종료 -1000000 return
 	if (depth >= 13) return scoreFunction(g.player(g.turn)) - scoreFunction(g.player(!g.turn));
 
 	if (b > maxScore) {

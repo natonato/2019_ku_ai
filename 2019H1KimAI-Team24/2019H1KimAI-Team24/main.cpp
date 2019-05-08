@@ -52,6 +52,7 @@ int main() {
 			else {
 				printf("AI가 진행중...\n");
 				input = ai.putStoneAI(game);
+				system("pause");
 			}
 			game = game.putStone(input);
 		}

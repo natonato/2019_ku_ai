@@ -11,6 +11,10 @@ public:
 	int putStoneAI(Game game);
 
 private:
+	// ³ª ´« ´Ù
+	void putStoneHeruistic(Game game, int& result);
+	void putStonePerfect(Game game, int& result);
+
 	// negamax Å½»ö ÇÔ¼ö
 	int getScoreHeuristic(Game game, int a, int b, int depth);
 	int getScorePerfect(Game game, int a, int b);

@@ -4,6 +4,7 @@
 #include "common.h"
 #include "cache.h"
 #include <array>
+#include <atomic>
 
 class Ai {
 public:
@@ -27,6 +28,9 @@ private:
 	
 	// score Ä³½Ã
 	Cache table;
+
+	// thread flag
+	std::atomic<bool> thTimeout;
 };
 
 

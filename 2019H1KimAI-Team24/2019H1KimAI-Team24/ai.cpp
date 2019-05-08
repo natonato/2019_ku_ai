@@ -3,22 +3,42 @@
 #include <cstdio>
 #include <cstdlib>
 #include <thread>
+#include <chrono>
 
 #define NEG -1000000
 
 // game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
 	int result;
-	if (game.step < 15) {
+	if (false) {
+	//if (game.step < 15) {
 		putStoneHeruistic(game, result);
 		printf("\n\nResult: %d 선택\n\n", result + 1);
 	}
 	else {
 		int pfResult;
-		auto perfectThread = std::thread(&Ai::putStonePerfect, this, game, std::ref(pfResult));
+		thTimeout = false;
+		auto timerThread = std::thread([this](){
+			auto end = std::chrono::system_clock::now() + std::chrono::seconds(110);
+			while (!thTimeout) {
+				std::this_thread::sleep_for(std::chrono::milliseconds(500));
+				auto now = std::chrono::system_clock::now();
+				if (now >= end)
+					thTimeout = true;
+			}
+		});
+		auto pfThread = std::thread(&Ai::putStonePerfect, this, game, std::ref(pfResult));
 		putStoneHeruistic(game, result);
-		perfectThread.join();
+		pfThread.join();
+		if (!thTimeout) {
+			result = pfResult;
+			thTimeout = true;
+		} 
+		else {
+			printf("\nPerfect solver 시간초과, Heuristic 선택\n");
+		}
 		printf("\n\nResult: %d 선택\n\n", result + 1);
+		timerThread.join();
 	}
 	return result;
 }
@@ -71,6 +91,7 @@ void Ai::putStonePerfect(Game game, int& result) {
 				maxScore = score;
 				result = order[i];
 			}
+			if (thTimeout) return;
 			printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
 			resultScore[order[i]] = score;
 		}
@@ -139,6 +160,8 @@ int Ai::scoreFunction(b64 player) {
 
 // negamax 탐색 함수
 int Ai::getScorePerfect(Game game, int a, int b) {
+	if (thTimeout) return a;
+
 	const auto state = game.state();
 	if (state == game.DRAW) return 0; // 비김
 	if (state != game.PLAYING) return -(22 - (game.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
@@ -160,6 +183,7 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		if (game.puttable(order[i])) {
 			Game nextGame = game.putStone(order[i]);
 			int score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
+			if (thTimeout) return a;
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;
 

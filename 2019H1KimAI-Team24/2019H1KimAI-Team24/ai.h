@@ -21,7 +21,8 @@ private:
 	int getScorePerfect(Game game, int a, int b);
 
 	// ÈÞ¸®½ºÆ½ score °è»ê
-	int scoreFunction(b64 game);
+	int scoreFunction(b64 player);
+	int scoreFunction2(b64 player, b64 board);
 
 	// Å½»ö ¼ø¼­
 	int order[7] = { 3, 2, 4, 1, 5, 0, 6 };
@@ -31,7 +32,6 @@ private:
 
 	// thread flag
 	std::atomic<bool> thTimeout;
-};
 
 
 #endif //AI_H

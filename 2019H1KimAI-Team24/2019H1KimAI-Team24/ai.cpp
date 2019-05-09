@@ -125,6 +125,99 @@ int Ai::getScoreHeuristic(Game g, int a, int b, int depth) {
 	return a;
 }
 
+int Ai::scoreFunction2(b64 player, b64 board) {
+	int cnt;
+	int weight[3] = { 1, 10, 100 }, connect[4] = { 0 };
+	int sum = 0;
+	//가로
+	for (int i = 0; i < 6; i++) {
+		for (int j = 0; j < 4; j++) {
+			cnt = 0;
+			for (int k = 0; k < 4; k++) {
+				b64 bit = State::posBit(j + k, i);
+				if (!(player & bit)) {
+					if (board & bit) {
+						cnt = -1;
+						break;
+					}
+				}
+				else {
+					cnt++;
+				}
+			}
+			if (cnt > 0) {
+				connect[cnt - 1]++;
+			}
+		}
+	}
+	//세로
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 7; j++) {
+			cnt = 0;
+			for (int k = 0; k < 4; k++) {
+				b64 bit = State::posBit(j, i + k);
+				if (!(player & bit)) {
+					if (board & bit) {
+						cnt = -1;
+						break;
+					}
+				}
+				else {
+					cnt++;
+				}
+			}
+			if (cnt > 0) {
+				connect[cnt - 1]++;
+			}
+		}
+	}
+	//우하단 대각선
+	for (int i = 3; i < 6; i++) {
+		for (int j = 0; j < 4; j++) {
+			cnt = 0;
+			for (int k = 0; k < 4; k++) {
+				b64 bit = State::posBit(j + k, i - k);
+				if (!(player & bit)) {
+					if (board & bit) {
+						cnt = -1;
+						break;
+					}
+				}
+				else {
+					cnt++;
+				}
+			}
+			if (cnt > 0) {
+				connect[cnt - 1]++;
+			}
+		}
+	}
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			cnt = 0;
+			for (int k = 0; k < 4; k++) {
+				b64 bit = State::posBit(j + k, i + k);
+				if (!(player & bit)) {
+					if (board & bit) {
+						cnt = -1;
+						break;
+					}
+				}
+				else {
+					cnt++;
+				}
+			}
+			if (cnt > 0) {
+				connect[cnt - 1]++;
+			}
+		}
+	}
+	for (int i = 0; i < 4; i++) {
+		sum += connect[i] * weight[i];
+	}
+	return sum;
+}
+
 int Ai::scoreFunction(b64 player) {
 	int sum = 0;
 	int dir[4] = { 1, 7, 6, 8 };

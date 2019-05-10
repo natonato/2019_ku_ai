@@ -26,12 +26,12 @@ private:
 
 	// 탐색 순서
 	int order[7] = { 3, 2, 4, 1, 5, 0, 6 };
-	
+
 	// score 캐시
 	Cache table;
 
 	// thread flag
 	std::atomic<bool> thTimeout;
-
+};
 
 #endif //AI_H

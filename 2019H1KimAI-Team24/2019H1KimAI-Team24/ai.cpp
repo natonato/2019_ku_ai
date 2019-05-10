@@ -10,8 +10,8 @@
 // game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
 	int result;
-	if (false) {
-	//if (game.step < 15) {
+	//if (false) {
+	if (game.step < 12) {
 		putStoneHeruistic(game, result);
 		printf("\n\nResult: %d 선택\n\n", result + 1);
 	}
@@ -80,32 +80,40 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 }
 
 void Ai::putStonePerfect(Game game, int& result) {
-	int maxScore = NEG;
-	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN , INT_MIN };
+	int maxScore = NEG, rangeMin = -21 + (game.step + 1) / 2, rangeMax = 22 - (game.step + 1) / 2;
+	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN };
 
-	for (int i = 0; i < NCOLUMN; i++) {
-		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
-			Game nextGame = game.putStone(order[i]);
-			int score = -getScorePerfect(nextGame, NEG, -maxScore);
-			if (maxScore < score) {
-				maxScore = score;
-				result = order[i];
+	while (rangeMin < rangeMax) {
+		const int rangeMid = (rangeMax + rangeMin) / 2;
+		for (int i = 0; i < NCOLUMN; i++) {
+			if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
+				Game nextGame = game.putStone(order[i]);
+				int score = -getScorePerfect(nextGame, rangeMid, rangeMid + 1);
+				if (maxScore < score) {
+					maxScore = score;
+					result = order[i];
+				}
+				if (thTimeout) return;
+				printf("\nPerfect Solver(%d): [%d] = %d", rangeMid, order[i] + 1, score);
+				resultScore[order[i]] = score;
 			}
-			if (thTimeout) return;
-			printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
-			resultScore[order[i]] = score;
 		}
-		//printf("%d : %d\n", i, maxScore);
+		((maxScore <= rangeMid) ? rangeMax : rangeMin) = maxScore;
 	}
 	printf("\n\nPerfect Solution: ");
 	printResultArray(resultScore);
 }
 
 int Ai::getScoreHeuristic(Game g, int a, int b, int depth) {
-	int score = -23, maxScore = 21 - (g.step + 1) / 2, val;
+	int score, maxScore = (21 - (g.step + 1) / 2) * 10000;
 
-	if (g.state() != g.PLAYING) return NEG;				//게임 종료 -1000000 return
-	if (depth >= 13) return scoreFunction(g.player(g.turn)) - scoreFunction(g.player(!g.turn));
+	const auto state = g.state();
+	if (state == g.DRAW) return 0;
+	if (state != g.PLAYING) return -(22 - (g.step + 1) / 2) * 10000;
+	//if (g.state() != g.PLAYING) return NEG;				//게임 종료 -1000000 return
+	if (depth >= 11) {
+		return scoreFunction2(g.player(g.turn), g.board()) - scoreFunction2(g.player(!g.turn), g.board());
+	}
 
 	if (b > maxScore) {
 		b = maxScore;

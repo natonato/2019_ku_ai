@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <vector>
 
-
 class Cache {
 public:
 

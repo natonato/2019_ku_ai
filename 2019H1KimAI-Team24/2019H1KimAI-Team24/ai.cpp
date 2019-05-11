@@ -62,7 +62,7 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 	int maxScore = NEG;
 	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN , INT_MIN };
 
-	for (int i = 0; i < NCOLUMN; i++) {
+	for (int i = 0; i < 7; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 			Game nextGame = game.putStone(order[i]);
 			int score = -getScoreHeuristic(nextGame, NEG, -maxScore, 1);
@@ -85,7 +85,7 @@ void Ai::putStonePerfect(Game game, int& result) {
 
 	//while (rangeMin < rangeMax) {
 	//	const int rangeMid = (rangeMax + rangeMin) / 2;
-		for (int i = 0; i < NCOLUMN; i++) {
+		for (int i = 0; i < 7; i++) {
 			if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 				Game nextGame = game.putStone(order[i]);
 				int score = -getScorePerfect(nextGame, NEG, -maxScore);//rangeMid, rangeMid + 1);
@@ -286,11 +286,11 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		if (a >= b) return b;
 	}
 
-	for (int i = 0; i < NCOLUMN; i++)
+	for (int i = 0; i < 7; i++)
 		if (game.puttable(order[i]) && game.putStone(order[i]).state() == game.turn)
 			return (22 - (game.step + 2) / 2);
 
-	for (int i = 0; i < NCOLUMN; i++) {
+	for (int i = 0; i < 7; i++) {
 		if (game.puttable(order[i])) {
 		//if (nextPos & (0b111111 << 7 * i)) {
 			Game nextGame = game.putStone(order[i]);

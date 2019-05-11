@@ -28,7 +28,7 @@ byte Game::state() {
 			return lastTurn;
 	}
 
-	if (step == 6 * NCOLUMN)
+	if (step == 42)
 		return DRAW;
 
 	return PLAYING;

@@ -11,13 +11,14 @@
 int Ai::putStoneAI(Game game) {
 	int result;
 //	if (false) {
-	if (game.step < 6) {
+	if (game.step < 6) {		// 6수까지는 heuristic만 사용한다.
 		putStoneHeruistic(game, result);
 		printf("\n\nResult: %d 선택\n\n", result + 1);
 	}
 	else {
 		int pfResult;
 		thTimeout = false;
+		// 110초를 세는 timer thread.
 		auto timerThread = std::thread([this](){
 			auto end = std::chrono::system_clock::now() + std::chrono::seconds(110);
 			while (!thTimeout) {
@@ -27,7 +28,9 @@ int Ai::putStoneAI(Game game) {
 					thTimeout = true;
 			}
 		});
+		// perfect solver는 따로 스레드로 돌린다. 110초 지나면 취소
 		auto pfThread = std::thread(&Ai::putStonePerfect, this, game, std::ref(pfResult));
+		// heuristic solver 작동
 		putStoneHeruistic(game, result);
 		pfThread.join();
 		if (!thTimeout) {
@@ -43,6 +46,7 @@ int Ai::putStoneAI(Game game) {
 	return result;
 }
 
+// solver 결과 보여주는 함수
 void printResultArray(std::array<int, 7>& arr) {
 	printf("[ ");
 	for (int i = 0; i < 7; ++i) {
@@ -57,7 +61,7 @@ void printResultArray(std::array<int, 7>& arr) {
 	puts("]");
 }
 
-// 나 눈 다
+// ------ Heuristic solver -----------------------------------------------------------------------------------------------
 void Ai::putStoneHeruistic(Game game, int& result) {
 	int maxScore = NEG;
 	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN , INT_MIN };
@@ -65,8 +69,8 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 	for (int i = 0; i < 7; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 			Game nextGame = game.putStone(order[i]);
-			int score = -getScoreHeuristic(nextGame, NEG, -maxScore, 1);
-			if (maxScore < score) {
+			int score = -getScoreHeuristic(nextGame, NEG, -maxScore, 1);	// negamax 함수
+			if (maxScore < score) {		// 최댓값일 경우 해당 위치 선택
 				maxScore = score;
 				result = order[i];
 			}
@@ -79,54 +83,27 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 	printResultArray(resultScore);
 }
 
-void Ai::putStonePerfect(Game game, int& result) {
-	int maxScore = NEG;// , rangeMin = -21 + (game.step + 1) / 2, rangeMax = 22 - (game.step + 1) / 2;
-	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN };
-
-	//while (rangeMin < rangeMax) {
-	//	const int rangeMid = (rangeMax + rangeMin) / 2;
-		for (int i = 0; i < 7; i++) {
-			if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
-				Game nextGame = game.putStone(order[i]);
-				int score = -getScorePerfect(nextGame, NEG, -maxScore);//rangeMid, rangeMid + 1);
-				if (maxScore < score) {
-					maxScore = score;
-					result = order[i];
-				}
-				if (thTimeout) return;
-				printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
-				//printf("\nPerfect Solver(%d): [%d] = %d", rangeMid, order[i] + 1, score);
-				resultScore[order[i]] = score;
-			}
-		}
-	//	((maxScore <= rangeMid) ? rangeMax : rangeMin) = maxScore;
-	//}
-	printf("\n\nPerfect Solution: ");
-	printResultArray(resultScore);
-}
-
 int Ai::getScoreHeuristic(Game g, int a, int b, int depth) {
 	int score, maxScore = (21 - (g.step + 1) / 2) * 10000;
 
 	const auto state = g.state();
-	if (state == g.DRAW) return 0;
-	if (state != g.PLAYING) return -(22 - (g.step + 1) / 2) * 10000;
-	//if (g.state() != g.PLAYING) return NEG;				//게임 종료 -1000000 return
-	if (depth >= 11) {
-		return scoreFunction2(g.player(g.turn), g.board()) - scoreFunction2(g.player(!g.turn), g.board());
-	}
+	if (state == g.DRAW) return 0;	// 비겼으면 0
+	if (state != g.PLAYING) return -(22 - (g.step + 1) / 2) * 10000;	// 내 차례에 끝났으면 상대방 승
 
-	if (b > maxScore) {
+	if (depth >= 11)		// depth가 11 이상일 경우 heuristic으로 구한 score로 점수 판별
+		return scoreFunction2(g.player(g.turn), g.board()) - scoreFunction2(g.player(!g.turn), g.board());
+
+	if (b > maxScore) {		// b가 최댓값보다 크면 의미가 없으니 갱신
 		b = maxScore;
-		if (a >= b) return b;
+		if (a >= b) return b;	// b를 갱신했더니 a보다 작으면 b는 최댓값
 	}
 
 	for (int i = 0; i < 7; i++) {
 		if (g.puttable(order[i])) {
-			Game tmpGame = g.putStone(order[i]);
+			Game tmpGame = g.putStone(order[i]);	// 해당 column에 놓을 수 있으면 minmax 진행
 			score = -getScoreHeuristic(tmpGame, -b, -a, depth + 1);
-			if (b <= score) return score;
-			if (a < score) a = score;
+			if (b <= score) return score;	// beta보다 score가 크면 프루닝 
+			if (a < score) a = score;	// alpha보다 score가 크면 a 갱신
 
 		}
 
@@ -260,6 +237,27 @@ int Ai::scoreFunction(b64 player) {
 	return sum;
 }
 
+void Ai::putStonePerfect(Game game, int& result) {
+	int maxScore = NEG;
+	std::array<int, 7> resultScore{ INT_MIN, INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN };
+
+	for (int i = 0; i < 7; i++) {
+		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
+			Game nextGame = game.putStone(order[i]);
+			int score = -getScorePerfect(nextGame, NEG, -maxScore);
+			if (maxScore < score) {
+				maxScore = score;
+				result = order[i];
+			}
+			if (thTimeout) return;
+			printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
+			resultScore[order[i]] = score;
+		}
+	}
+	printf("\n\nPerfect Solution: ");
+	printResultArray(resultScore);
+}
+
 // negamax 탐색 함수
 int Ai::getScorePerfect(Game game, int a, int b) {
 	if (thTimeout) return a;
@@ -268,17 +266,7 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 	if (state == game.DRAW) return 0; // 비김
 	if (state != game.PLAYING) return -(21 - game.step / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 
-	//const auto nextPos = game.safePutBit();
-	//if (!nextPos) return 21 - (game.step + 1) / 2;
-
-	/*
-	const int minScore = -(20 - game.step) / 2;
-	if (a < minScore) {
-		a = minScore;
-		if (a >= b) return a;
-	}
-	*/
-
+	// 캐시된 maxScore 값이 있으면 불러옴
 	const int cachedScore = table.getValue(game.player(game.turn) + game.board());
 	const int maxScore = cachedScore ? (cachedScore + 99) : (21 - (game.step + 1) / 2);
 	if (b > maxScore) {
@@ -286,24 +274,23 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		if (a >= b) return b;
 	}
 
+	// 만약 다음수에 이길 수 있는 방법이 있으면 바로 리턴
 	for (int i = 0; i < 7; i++)
 		if (game.puttable(order[i]) && game.putStone(order[i]).state() == game.turn)
-			return (22 - (game.step + 2) / 2);
+			return (21 - (game.step + 1) / 2);
 
+	// negamax 진행
 	for (int i = 0; i < 7; i++) {
 		if (game.puttable(order[i])) {
-		//if (nextPos & (0b111111 << 7 * i)) {
-			Game nextGame = game.putStone(order[i]);
+			Game nextGame = game.putStone(order[i]);	// 놓을 수 있는 수만 진행
 			int score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
 			if (thTimeout) return a;
 			if (b <= score) return score;				//score가 max보다 크면 max로 저장
 			if (a < score) a = score;
-
-			//			printf("score = %d\n", score);
-			//			system("pause");
 		}
 	}
-
+	
+	// 결과값을 캐시에 저장
 	table.putValue(game.player(game.turn) + game.board(), a - 99);
 
 	return a;

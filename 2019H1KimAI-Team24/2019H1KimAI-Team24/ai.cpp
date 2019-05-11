@@ -237,6 +237,7 @@ int Ai::scoreFunction(b64 player) {
 	return sum;
 }
 
+// ------ Perfect solver -------------------------------------------------------------------------------------------------
 void Ai::putStonePerfect(Game game, int& result) {
 	int maxScore = NEG;
 	std::array<int, 7> resultScore{ INT_MIN, INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN };

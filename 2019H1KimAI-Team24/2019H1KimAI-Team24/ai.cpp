@@ -245,7 +245,10 @@ void Ai::putStonePerfect(Game game, int& result) {
 	for (int i = 0; i < 7; i++) {
 		if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 			Game nextGame = game.putStone(order[i]);
-			int score = -getScorePerfect(nextGame, NEG, -maxScore);
+			const auto state = nextGame.state();
+			int score = (state == Game::DRAW) ? 0 :							// 비김
+						(state != Game::PLAYING) ? 21 - nextGame.step / 2 :	// 이김
+						-getScorePerfect(nextGame, NEG, -maxScore);			// negamax 진행
 			if (maxScore < score) {
 				maxScore = score;
 				result = order[i];
@@ -276,9 +279,13 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 	}
 
 	// 만약 다음수에 이길 수 있는 방법이 있으면 바로 리턴
-	for (int i = 0; i < 7; i++)
-		if (game.puttable(order[i]) && game.putStone(order[i]).state() == game.turn)
-			return (21 - (game.step + 1) / 2);
+	for (int i = 0; i < 7; i++) {
+		if (game.puttable(order[i])) {
+			const auto state = game.putStone(order[i]).state();
+			if (state == game.DRAW) return 0;
+			if (state != game.PLAYING) return 21 - (game.step + 1) / 2;
+		}
+	}
 
 	// negamax 진행
 	for (int i = 0; i < 7; i++) {

@@ -2,6 +2,19 @@
 #include <cstdio>
 #include <cstdlib>
 
+// board와 player를 받아 player가 다음 턴에 이길 수 있는 bit를 리턴.
+b64 Game::winPosBit(b64 p, b64 b)
+{
+	b64 result = (p << 1) & (p << 2) & (p << 3);
+	for (int i = -1; i <= 1; ++i) {
+		b64 t = (p << (7 + i)) & (p << 2 * (7 + i));
+		result |= (t & (p << 3 * (7 + i))) | (t & (p >> (7 + i)));
+		t >>= 3 * (7 + i);
+		result |= (t & (p >> 3 * (7 + i))) | (t & (p << (7 + i)));
+	}
+	return result & (b ^ State::VALID);
+}
+
 // Game의 현재 상태를 리턴 -> [NONE | FST | SND | DRAW]
 byte Game::state() {
 	byte lastTurn = !turn;

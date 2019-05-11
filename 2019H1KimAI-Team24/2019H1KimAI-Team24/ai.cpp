@@ -10,8 +10,8 @@
 // game을 보고 AI가 놓을 다음 수를 리턴.
 int Ai::putStoneAI(Game game) {
 	int result;
-	//if (false) {
-	if (game.step < 12) {
+//	if (false) {
+	if (game.step < 6) {
 		putStoneHeruistic(game, result);
 		printf("\n\nResult: %d 선택\n\n", result + 1);
 	}
@@ -80,26 +80,27 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 }
 
 void Ai::putStonePerfect(Game game, int& result) {
-	int maxScore = NEG, rangeMin = -21 + (game.step + 1) / 2, rangeMax = 22 - (game.step + 1) / 2;
+	int maxScore = NEG;// , rangeMin = -21 + (game.step + 1) / 2, rangeMax = 22 - (game.step + 1) / 2;
 	std::array<int, 7> resultScore { INT_MIN, INT_MIN, INT_MIN, INT_MIN , INT_MIN , INT_MIN , INT_MIN };
 
-	while (rangeMin < rangeMax) {
-		const int rangeMid = (rangeMax + rangeMin) / 2;
+	//while (rangeMin < rangeMax) {
+	//	const int rangeMid = (rangeMax + rangeMin) / 2;
 		for (int i = 0; i < NCOLUMN; i++) {
 			if (game.puttable(order[i])) {		// 현재 state에서 각 열별로 진행한 7개의 state의 점수를 보고 어디로 갈지 결정
 				Game nextGame = game.putStone(order[i]);
-				int score = -getScorePerfect(nextGame, rangeMid, rangeMid + 1);
+				int score = -getScorePerfect(nextGame, NEG, -maxScore);//rangeMid, rangeMid + 1);
 				if (maxScore < score) {
 					maxScore = score;
 					result = order[i];
 				}
 				if (thTimeout) return;
-				printf("\nPerfect Solver(%d): [%d] = %d", rangeMid, order[i] + 1, score);
+				printf("\nPerfect Solver: [%d] = %d", order[i] + 1, score);
+				//printf("\nPerfect Solver(%d): [%d] = %d", rangeMid, order[i] + 1, score);
 				resultScore[order[i]] = score;
 			}
 		}
-		((maxScore <= rangeMid) ? rangeMax : rangeMin) = maxScore;
-	}
+	//	((maxScore <= rangeMid) ? rangeMax : rangeMin) = maxScore;
+	//}
 	printf("\n\nPerfect Solution: ");
 	printResultArray(resultScore);
 }
@@ -265,23 +266,33 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 
 	const auto state = game.state();
 	if (state == game.DRAW) return 0; // 비김
-	if (state != game.PLAYING) return -(22 - (game.step + 1) / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
+	if (state != game.PLAYING) return -(21 - game.step / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 
-	const int cachedScore = table.getValue(game.player(game.turn).value);
+	//const auto nextPos = game.safePutBit();
+	//if (!nextPos) return 21 - (game.step + 1) / 2;
+
+	/*
+	const int minScore = -(20 - game.step) / 2;
+	if (a < minScore) {
+		a = minScore;
+		if (a >= b) return a;
+	}
+	*/
+
+	const int cachedScore = table.getValue(game.player(game.turn) + game.board());
 	const int maxScore = cachedScore ? (cachedScore + 99) : (21 - (game.step + 1) / 2);
-
 	if (b > maxScore) {
 		b = maxScore;
 		if (a >= b) return b;
 	}
 
-	// 다음 수에 이길 수 있으면 바로 리턴 (코드 중복 제거 필요함)
 	for (int i = 0; i < NCOLUMN; i++)
 		if (game.puttable(order[i]) && game.putStone(order[i]).state() == game.turn)
 			return (22 - (game.step + 2) / 2);
 
 	for (int i = 0; i < NCOLUMN; i++) {
 		if (game.puttable(order[i])) {
+		//if (nextPos & (0b111111 << 7 * i)) {
 			Game nextGame = game.putStone(order[i]);
 			int score = -getScorePerfect(nextGame, -b, -a);		//putStone이 true면 재귀
 			if (thTimeout) return a;
@@ -293,7 +304,7 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		}
 	}
 
-	table.putValue(game.player(game.turn).value, a - 99);
+	table.putValue(game.player(game.turn) + game.board(), a - 99);
 
 	return a;
 }

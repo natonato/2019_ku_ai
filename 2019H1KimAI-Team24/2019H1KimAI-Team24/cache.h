@@ -1,36 +1,33 @@
 #ifndef CACHE_H
 #define CACHE_H
 
-#define MAX_ENTRY 0x800000				//8M
 #include "common.h"
 #include <cstdlib>
 #include <vector>
 
 class Cache {
+	static constexpr int SIZE = 0x800000 + 9;
 public:
 
-	std::vector<b64> keyTable;
+	std::vector<unsigned int> keyTable;
 	std::vector<byte> valTable;
 
 	unsigned int index(b64 key) {
-		return key % MAX_ENTRY;
+		return key % SIZE;
 	}
 
 	int getValue(b64 key) {
 		unsigned int idx = index(key);
-		if (keyTable[idx] == key) {
-			return valTable[idx];
-		}
-		return 0;
+		return (keyTable[idx] == (unsigned int)key) ? valTable[idx] : 0;
 	}
 
 	void putValue(b64 key, byte val) {
 		unsigned int idx = index(key);
-		keyTable[idx] = key;
+		keyTable[idx] = index(key);
 		valTable[idx] = val;
 	}
 	
-	Cache() : keyTable(MAX_ENTRY), valTable(MAX_ENTRY) {}
+	Cache() : keyTable(SIZE), valTable(SIZE) {}
 };
 
 #endif

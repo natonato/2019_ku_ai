@@ -5,6 +5,10 @@
 #include <cstdio>
 
 struct State {
+#pragma region constants
+	static constexpr b64 VALID  = 0b0111111011111101111110111111011111101111110111111;
+	static constexpr b64 BOTTOM = 0b0000001000000100000010000001000000100000010000001;
+#pragma endregion
 #pragma region variable and operators for emulating long long
 	b64 value;
 	State(const b64 &v) : value(v) {}
@@ -13,6 +17,11 @@ struct State {
 
 #pragma endregion
 #pragma region helper function
+	// board의 top bit
+	static constexpr b64 topBit(b64 board) {
+		return (board + State::BOTTOM) & State::VALID;
+	}
+
 	// (col, row) 위치 index
 	static constexpr int posIdx(int col, int row) {
 		return (col * 7) + row;
@@ -60,10 +69,25 @@ struct Game {
 	auto& player(byte n) { return n ? player2 : player1; }	// player(FST) = ...; 같이 사용 가능
 
 #pragma endregion
+#pragma region helper function
+	// board와 player를 받아 player가 다음 턴에 이길 수 있는 bit를 리턴.
+	static b64 winPosBit(b64 p, b64 b);
+#pragma endregion
 #pragma region method
 	// column 자리에 돌 놓을 수 있는 지 리턴 -> true | false
 	bool puttable(int column) const {
 		return !(board() & State::posBit(column, 5));
+	}
+
+	// 현재 player가 다음 턴에 지지 않을 bit를 리턴.
+	b64 safePutBit() {
+		b64 nextPut = State::topBit(board());
+		b64 losePos = winPosBit(player(!turn), board());
+		if (auto losePut = nextPut & losePos) {
+			if (losePut & (losePut - 1)) return 0;	// 필패 수가 2개 이상일 때
+			else nextPut = losePut;
+		}
+		return nextPut & ~(losePos >> 1);	// 상대방이 이길 수 있는 수 회피
 	}
 
 	// Game의 현재 상태를 리턴 -> NONE | FST | SND | DRAW

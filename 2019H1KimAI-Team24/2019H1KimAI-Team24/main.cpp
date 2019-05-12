@@ -46,6 +46,8 @@ int main() {
 				input--;
 				if (input < 0 || 6 < input)
 					throw 'r';	// 입력값 오류: 범위를 벗어남
+				if (game.step == 0 && input == 3)
+					throw 'f';	// 선공은 첫 수를 4에 둘 수 없음
 				if (!game.puttable(input))
 					throw 'v';	// 더 이상 둘 수 없음
 			}
@@ -63,6 +65,9 @@ int main() {
 				break;
 			case 'r':
 				printf("입력값 오류: 범위를 벗어남\n");
+				break;
+			case 'f':
+				printf("선공은 첫 수를 4에 둘 수 없음\n");
 				break;
 			case 'v':
 				printf("%d에 더 이상 둘 수 없음\n", input); 

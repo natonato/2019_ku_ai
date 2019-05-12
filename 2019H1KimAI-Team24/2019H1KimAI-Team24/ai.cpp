@@ -11,7 +11,7 @@
 int Ai::putStoneAI(Game game) {
 	int result;
 //	if (false) {
-	if (game.step < 6) {		// 6수까지는 heuristic만 사용한다.
+	if (game.step < 12) {		// 12수까지는 heuristic만 사용한다.
 		putStoneHeruistic(game, result);
 		printf("\n\nResult: %d 선택\n\n", result + 1);
 	}
@@ -47,18 +47,20 @@ int Ai::putStoneAI(Game game) {
 }
 
 // solver 결과 보여주는 함수
-void printResultArray(std::array<int, 7>& arr) {
-	printf("[ ");
+void printResultArray(const char* prefix, std::array<int, 7>& arr) {
+	char obuf[1000];
+	sprintf(obuf, "%s [ ", prefix);
 	for (int i = 0; i < 7; ++i) {
-		if (i != 0) printf(", ");
+		if (i != 0) sprintf(obuf + strlen(obuf), ", ");
 		switch (arr[i]) {
-		case INT_MIN: printf("   -"); break;
-		case     NEG: printf("LOSE"); break;
-		case    -NEG: printf(" WIN"); break;
-		default: printf("%4d", arr[i]);
+		case INT_MIN: sprintf(obuf + strlen(obuf), "   -"); break;
+		case     NEG: sprintf(obuf + strlen(obuf), "LOSE"); break;
+		case    -NEG: sprintf(obuf + strlen(obuf), " WIN"); break;
+		default: sprintf(obuf + strlen(obuf), "%4d", arr[i]);
 		}
 	}
-	puts("]");
+	sprintf(obuf + strlen(obuf), "]");
+	puts(obuf);
 }
 
 // ------ Heuristic solver -----------------------------------------------------------------------------------------------
@@ -79,8 +81,7 @@ void Ai::putStoneHeruistic(Game game, int& result) {
 		}
 		//printf("%d : %d\n", i, maxScore);
 	}
-	printf("\n\nHeuristic Solution: ");
-	printResultArray(resultScore);
+	printResultArray("\n\nHeuristic Solution:", resultScore);
 }
 
 int Ai::getScoreHeuristic(Game g, int a, int b, int depth) {
@@ -258,8 +259,7 @@ void Ai::putStonePerfect(Game game, int& result) {
 			resultScore[order[i]] = score;
 		}
 	}
-	printf("\n\nPerfect Solution: ");
-	printResultArray(resultScore);
+	printResultArray("\n\nPerfect Solution:", resultScore);
 }
 
 // negamax 탐색 함수

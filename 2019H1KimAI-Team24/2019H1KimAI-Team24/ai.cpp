@@ -247,7 +247,7 @@ void Ai::putStonePerfect(Game game, int& result) {
 			Game nextGame = game.putStone(order[i]);
 			const auto state = nextGame.state();
 			int score = (state == Game::DRAW) ? 0 :							// ∫Ò±Ë
-						(state != Game::PLAYING) ? 21 - nextGame.step / 2 :	// ¿Ã±Ë
+						(state != Game::PLAYING) ? 22 - nextGame.step / 2 :	// ¿Ã±Ë
 						-getScorePerfect(nextGame, NEG, -maxScore);			// negamax ¡¯«‡
 			if (maxScore < score) {
 				maxScore = score;
@@ -268,11 +268,11 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 
 	const auto state = game.state();
 	if (state == game.DRAW) return 0; // ∫Ò±Ë
-	if (state != game.PLAYING) return -(21 - game.step / 2); //∞‘¿” ¡æ∑·, 22 - Ω¬∏Æ«— player∞° µ– µπ ∞πºˆ∞° score.
+	if (state != game.PLAYING) return -(22 - game.step / 2); //∞‘¿” ¡æ∑·, 22 - Ω¬∏Æ«— player∞° µ– µπ ∞πºˆ∞° score.
 
 	// ƒ≥Ω√µ» maxScore ∞™¿Ã ¿÷¿∏∏È ∫“∑Øø»
 	const int cachedScore = table.getValue(game.player(game.turn) + game.board());
-	const int maxScore = cachedScore ? (cachedScore + 99) : (21 - (game.step + 1) / 2);
+	const int maxScore = cachedScore ? (cachedScore + 99) : (22 - (game.step + 1) / 2);
 	if (b > maxScore) {
 		b = maxScore;
 		if (a >= b) return b;
@@ -283,7 +283,7 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 		if (game.puttable(order[i])) {
 			const auto state = game.putStone(order[i]).state();
 			if (state == game.DRAW) return 0;
-			if (state != game.PLAYING) return 21 - (game.step + 1) / 2;
+			if (state != game.PLAYING) return 22 - (game.step + 1) / 2;
 		}
 	}
 

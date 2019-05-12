@@ -267,8 +267,6 @@ int Ai::getScorePerfect(Game game, int a, int b) {
 	if (thTimeout) return a;
 
 	const auto state = game.state();
-	if (state == game.DRAW) return 0; // 비김
-	if (state != game.PLAYING) return -(22 - game.step / 2); //게임 종료, 22 - 승리한 player가 둔 돌 갯수가 score.
 
 	// 캐시된 maxScore 값이 있으면 불러옴
 	const int cachedScore = table.getValue(game.player(game.turn) + game.board());

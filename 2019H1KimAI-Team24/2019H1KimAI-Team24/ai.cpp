@@ -266,8 +266,6 @@ void Ai::putStonePerfect(Game game, int& result) {
 int Ai::getScorePerfect(Game game, int a, int b) {
 	if (thTimeout) return a;
 
-	const auto state = game.state();
-
 	// 캐시된 maxScore 값이 있으면 불러옴
 	const int cachedScore = table.getValue(game.player(game.turn) + game.board());
 	const int maxScore = cachedScore ? (cachedScore + 99) : (22 - (game.step + 1) / 2);
